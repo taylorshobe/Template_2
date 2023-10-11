@@ -1,0 +1,37 @@
+
+@callback(
+    ...
+    Output("block-a-required", "disabled"),
+    Output("block-b-required", "disabled"),
+    Output("block-c-required", "disabled"),
+    Output("block-d-required", "disabled"),
+    Output("block-e-required", "disabled"),
+    ...
+
+# Inputs for the "Block Required" checkmarks
+    Input("block-a-required", "checked"),
+    Input("block-b-required", "checked"),
+    Input("block-c-required", "checked"),
+    Input("block-d-required", "checked"),
+    Input("block-e-required", "checked"),
+)
+
+
+
+# Check if any block has a standalone "Exclude Matches"
+standalone_exclude_exists = df_phrase_grid[
+    (df_phrase_grid['Phrase Operator'] == 'Exclude Matches')
+    & (df_phrase_grid.groupby('Block')['Block'].transform('count') == 1)
+].shape[0] > 0
+
+
+
+return (block_a_operator_state, block_b_operator_state, block_c_operator_state, 
+        block_d_operator_state, block_e_operator_state, block_a_proximity_state, 
+        block_b_proximity_state, block_c_proximity_state, block_d_proximity_state, 
+        block_e_proximity_state, block_a_seconds_state, block_b_seconds_state, 
+        block_c_seconds_state, block_d_seconds_state, block_e_seconds_state, 
+        standalone_exclude_exists, standalone_exclude_exists, standalone_exclude_exists, 
+        standalone_exclude_exists, standalone_exclude_exists)
+
+
