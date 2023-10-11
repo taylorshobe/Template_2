@@ -1,0 +1,41 @@
+# BLOCK MATCH REQ
+
+@callback(
+    Output("block-a-required", "checked"), 
+    Output("block-b-required", "checked"), 
+    Output("block-c-required", "checked"),
+    Output("block-d-required", "checked"),
+    Output("block-e-required", "checked"),
+    Input("query-load-button", "n_clicks"),
+    Input("phrase-grid", "cellValueChanged"),
+    State("phrase-grid", "data"),
+    prevent_initial_call=True
+)
+def force_block_match(load_clicks, phrase_grid_changes, phrase_grid_data):
+
+    interactions = ctx.triggered_id
+    logging.info(f"Force Block Options: triggering interactions: {interactions}")  
+
+    # Convert phrase_grid_data to DataFrame
+    df_phrase_grid = pd.DataFrame(phrase_grid_data) 
+
+    # Check if any block is a standalone exclusionary phrase group
+    standalone_exclude_blocks = df_phrase_grid[
+        (df_phrase_grid['Phrase Operator'] == 'Exclude Matches') &
+        (df_phrase_grid.groupby('Block')['Block'].transform('size') == 1)
+    ]['Block'].unique()
+
+    force_all_required = len(standalone_exclude_blocks) > 0
+
+    logging.info(f"Force All Required: {force_all_required}")
+
+    # If any block is a standalone exclusionary phrase group, set all checkboxes to True
+    block_required_values = {
+        'A': True if force_all_required else no_update,
+        'B': True if force_all_required else no_update,
+        'C': True if force_all_required else no_update,
+        'D': True if force_all_required else no_update,
+        'E': True if force_all_required else no_update,
+    }
+
+    return block_required_values['A'], block_required_values['B'], block_required_values['C'], block_required_values['D'], block_required_values['E']
