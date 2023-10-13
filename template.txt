@@ -1,0 +1,83 @@
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import dash_design_kit as ddk  # Ensure this is installed
+import dash_bootstrap_components as dbc
+import pandas as pd
+from dash.dependencies import Input, Output
+
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, ddk.stylesheets['default']])
+
+block_ids = ['A', 'B', 'C', 'D', 'E']
+dataframe = pd.DataFrame(...)  # Your dataframe creation code here
+
+app.layout = dbc.Container([
+    dbc.Card([
+        dbc.CardHeader("Block Combination Logic"),
+        dbc.CardBody([
+            ddk.Stack(
+                children=[
+                    ddk.Checkbox(id=f"block-{block_id.lower()}-required", label=f"{block_id} Required",
+                                 style={'visibility': 'visible'}, checked=False)
+                    for block_id in block_ids
+                ],
+            ),
+            html.Hr(),
+            html.Div(id="logic-output"),
+        ]),
+        dbc.CardFooter([
+            html.H6("Symbol Definitions:"),
+            html.P([
+                "∩ = INTERSECTION. A ∩ (...) means that Block A is required and will be combined with the results from (...) where an overlap exists.",
+                html.Br(),
+                "U = UNION (OR). A U B means results from Block A or Block B or both.",
+                html.Br(),
+                "⊄ = EXCLUDES (non-intersection). A ⊄ B means results from Block A that do not overlap with Block B.",
+            ]),
+        ]),
+    ]),
+    dcc.Store(id='df-store', data=dataframe.to_dict('records'))
+])
+
+
+@app.callback(
+    Output("logic-output", "children"),
+    [Input(f"block-{block_id.lower()}-required", "checked") for block_id in block_ids] +
+    [Input("df-store", "data")]
+)
+def update_logic(*args):
+    required_vals = args[:len(block_ids)]
+    dataframe = pd.DataFrame(args[-1])  # convert the raw data back into a DataFrame
+
+    required_inclusion_blocks = []
+    non_required_inclusion_blocks = []
+    exclusion_blocks = []
+
+    for block_id in block_ids:
+        block_data = dataframe[dataframe['block_id'] == block_id]
+        if block_data[block_data['phrase_operator'] == 'INCLUDE MATCHES'].shape[0] > 0 and block_data['block_combo_logic'].iloc[0]:
+            required_inclusion_blocks.append(block_id)
+        elif block_data[block_data['phrase_operator'] == 'INCLUDE MATCHES'].shape[0] > 0:
+            non_required_inclusion_blocks.append(block_id)
+        else:
+            exclusion_blocks.append(block_id)
+
+    inclusion_str = ' ∩ '.join(required_inclusion_blocks)
+    if non_required_inclusion_blocks:
+        inclusion_str += ' U ' if inclusion_str else ''
+        inclusion_str += ' U '.join(non_required_inclusion_blocks)
+
+    exclusion_str = ' ⊄ '.join(exclusion_blocks)
+
+    if inclusion_str and exclusion_str:
+        return f"({inclusion_str}) ⊄ {exclusion_str}"
+    elif inclusion_str:
+        return f"{inclusion_str}"
+    elif exclusion_str:
+        return f"⊄ {exclusion_str}"
+    else:
+        return "No logic defined"
+
+
+if __name__ == "__main__":
+    app.run_server(debug=True)
