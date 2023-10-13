@@ -1,0 +1,30 @@
+
+logging.info(f"Data for {block_id}: {block_data}")
+has_include_matches = block_data[block_data['Phrase Operator'] == 'INCLUDE MATCHES'].shape[0] > 0
+logging.info(f"{block_id} has_include_matches: {has_include_matches}, is_required: {is_required}")
+
+if has_include_matches and is_required:
+    # ...
+
+logging.info(f"Condition for {block_id}: INCLUDE MATCHES exists: {block_data[block_data['Phrase Operator'] == 'INCLUDE MATCHES'].shape[0] > 0}, is_required: {is_required}")
+
+
+
+for block_id in block_ids:
+    block_data = df_phrase_grid[df_phrase_grid['Block'] == block_id]
+
+    logging.info(f"Data for {block_id}: {block_data}")
+
+    has_include_matches = block_data[block_data['Phrase Operator'] == 'INCLUDE MATCHES'].shape[0] > 0
+    
+    logging.info(f"{block_id} - has_include_matches: {has_include_matches}, is_required: {is_required}")
+
+    if has_include_matches and is_required:
+        required_inclusion_blocks.append(block_id)
+        logging.info(f"UD required_inclusion_blocks: {required_inclusion_blocks}")
+    elif has_include_matches:
+        non_required_inclusion_blocks.append(block_id)
+        logging.info(f"UD non_required_inclusion_blocks: {non_required_inclusion_blocks}")
+    else:
+        exclusion_blocks.append(block_id)
+        logging.info(f"UD exclusion_blocks: {exclusion_blocks}")
