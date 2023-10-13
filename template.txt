@@ -1,0 +1,23 @@
+# Create logic strings
+inclusion_str = ""
+non_required_inclusion_str = ' U '.join(non_required_inclusion_blocks)
+exclusion_str = ' ⊄ '.join(exclusion_blocks)
+
+# Construct inclusion_str based on whether there are required inclusion blocks
+# and non-required inclusion blocks.
+if required_inclusion_blocks and non_required_inclusion_blocks:
+    inclusion_str = f"({required_inclusion_blocks[0]} ∩ ({non_required_inclusion_str}))"
+elif required_inclusion_blocks:
+    inclusion_str = required_inclusion_blocks[0]
+elif non_required_inclusion_str:
+    inclusion_str = non_required_inclusion_str
+
+# Construct the final output string
+if inclusion_str and exclusion_str:
+    return f"{inclusion_str} ⊄ {exclusion_str}"
+elif inclusion_str:
+    return f"{inclusion_str}"
+elif exclusion_str:
+    return f"⊄ {exclusion_str}"
+else:
+    return "No logic defined"
