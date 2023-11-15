@@ -1,0 +1,23 @@
+@callback(
+    Output("scope-count", 'value'),
+    Output("scope-count", 'style'),
+    Input("scope-storage", "data"),
+)
+def scope_count(data):
+    logging.info(f"Received data for scope count: {data}")
+    
+    if data and data.get('scope_set'):
+        scope_r_id_count = data.get('scope_r_id_count', 0)
+        
+        # Check for NaN or None
+        if scope_r_id_count is None or pd.isna(scope_r_id_count):
+            formatted_count = "0"
+        else:
+            # Format with comma separator
+            formatted_count = "{:,}".format(scope_r_id_count)
+        
+        logging.info(f"Formatted count: {formatted_count}")
+
+        return formatted_count, {'display': 'block'}
+    
+    return "0", {'display': 'none'}
