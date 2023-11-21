@@ -1,0 +1,46 @@
+
+
+query_results_panel = html.Div([
+    dbc.Card([
+        dbc.CardHeader("Query Results"),
+        dbc.CardBody([
+            dbc.Row([
+                dbc.Col([
+                    daq.LEDDisplay(
+                        id='id-count',
+                        label="r_id count",
+                        value='0',
+                        color="#00A0DF"
+                    ),
+                ], width=2),
+                dbc.Col([
+                    daq.LEDDisplay(
+                        id='distinct-count',
+                        label="distinct count",
+                        value='0',
+                        color="#00A0DF"
+                    ),
+                ], width=2),
+                dbc.Col([
+                    dbc.Row([  # Nested Row
+                        dbc.Col([  # Column for ratio-count
+                            daq.LEDDisplay(
+                                id='ratio-count',
+                                label="Ratio",
+                                value='0',
+                                color="#00A0DF"
+                            ),
+                        ], width=2),
+                        dbc.Col([]),  # Empty Column or with other content
+                    ]),
+                    dcc.Graph(  # Graph Component
+                        id="query-results-graph",
+                        style={'display': 'none'}
+                    ),
+                ], width=8),
+            ]),
+            # ... rest of your components ...
+        ], className="bg-light"),
+    ]),
+    html.Br(),
+], id='query-results-panel', style={'display': 'none'})
